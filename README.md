@@ -3,7 +3,7 @@
 # Application properties
 
 
-# Database configuration
+## Database configuration
 
 spring.datasource.url=jdbc:postgresql://localhost:5432/db_amasia_fide
 spring.datasource.username=postgres
