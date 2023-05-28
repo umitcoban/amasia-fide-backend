@@ -42,7 +42,7 @@ spring.mail.properties.mail.smtp.timeout=10000
 spring.quartz.job-store-type=memory
 spring.quartz.properties.org.quartz.threadPool.threadCount=10
 
-# JWT Configuration
+## JWT Configuration
 JWT.jwtCookieName=amasia-fide-auth
 JWT.secret=ypIiBvRh8puqFluWS7kGvtqgCXmqxsdXTdimjIk42sI=
 JWT.expiration=86400000
