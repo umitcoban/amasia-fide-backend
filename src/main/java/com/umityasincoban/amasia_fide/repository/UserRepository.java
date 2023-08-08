@@ -16,6 +16,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByUserId(long id);
 
+    Optional<User> findByEmailOrCitizenNumberOrPhone(String email, String citizenNumber, String phone);
+
     @Transactional
     @Modifying(clearAutomatically = true)
     @Query(value = "call public.sp_activate_use_by_id(:id, :status)", nativeQuery = true)

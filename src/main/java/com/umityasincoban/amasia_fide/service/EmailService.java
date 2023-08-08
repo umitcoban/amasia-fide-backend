@@ -6,9 +6,12 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import java.util.logging.Logger;
+
 @Service
 public class EmailService {
     private final JavaMailSender mailSender;
+    private static final Logger logger = Logger.getLogger(EmailService.class.getName());
 
     @Value("${spring.mail.username}")
     private String email;
@@ -19,12 +22,18 @@ public class EmailService {
     }
 
     public void sendWelcomeEmail(String to) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(email);
-        message.setTo(to);
-        message.setSubject("Welcome to Our Application");
-        message.setText("Thank you for registering to our application!");
-        mailSender.send(message);
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(email);
+            message.setTo(to);
+            message.setSubject("Welcome to Our Application");
+            message.setText("Thank you for registering to our application!");
+            mailSender.send(message);
+        }catch (Exception e){
+            logger.warning(e.getMessage());
+            throw e;
+        }
+
     }
 
 
