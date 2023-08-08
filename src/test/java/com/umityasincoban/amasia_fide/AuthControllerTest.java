@@ -33,11 +33,11 @@ public class AuthControllerTest {
 
     @Test
     void createUserTest() throws Exception {
-        RegisterDTO registerDTO = new RegisterDTO("Ümit", "Yasin", "Çoban", "test123@test.com", "1111111111", "11111111111", "5373591579");
+        RegisterDTO registerDTO = new RegisterDTO("Ümit", "Yasin", "Çoban", "test123@test.com", "1111111111", "11111111111", "1111111111");
 
         TokenDTO token = new TokenDTO("", System.currentTimeMillis(), 401);
         Mockito.when(userService.register(registerDTO)).thenReturn(token);
-
+        System.out.println();
         ObjectMapper objectMapper = new ObjectMapper();
         String registerDTOJson = objectMapper.writeValueAsString(registerDTO);
 
