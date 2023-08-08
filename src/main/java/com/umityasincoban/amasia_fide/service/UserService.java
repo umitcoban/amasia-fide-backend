@@ -1,7 +1,10 @@
 package com.umityasincoban.amasia_fide.service;
 
+import com.mchange.util.AlreadyExistsException;
 import com.umityasincoban.amasia_fide.dto.*;
 import com.umityasincoban.amasia_fide.entity.User;
+import com.umityasincoban.amasia_fide.exception.UserAlreadyExistException;
+import com.umityasincoban.amasia_fide.exception.UserNotFoundException;
 import com.umityasincoban.amasia_fide.mapper.UserMapper;
 import com.umityasincoban.amasia_fide.repository.UserRepository;
 import com.umityasincoban.amasia_fide.util.JwtUtil;
@@ -14,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 @Service
@@ -29,9 +33,9 @@ public class UserService {
 
     public TokenDTO login(LoginDTO request) {
         try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.username(), request.password())
-            );
+            Optional<User> existUser = userRepository.findByEmail(request.username());
+            existUser.orElseThrow(() -> new UserNotFoundException("User not found!"));
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.username(), request.password()));
             var user = userRepository.findByEmail(request.username()).orElseThrow();
             var jwt = jwtService.generateToken(user);
             emailService.sendWelcomeEmail(request.username());
@@ -42,7 +46,9 @@ public class UserService {
         }
     }
 
-    public TokenDTO register(RegisterDTO request) {
+    public TokenDTO register(RegisterDTO request) throws AlreadyExistsException {
+        Optional<User> existUserByEmail = userRepository.findByEmailOrCitizenNumberOrPhone(request.email(), request.citizenNumber(), request.phone());
+        if (existUserByEmail.isPresent()) throw new UserAlreadyExistException("Email is already exist");
         var user = userMapper.registerDtoToUser(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
