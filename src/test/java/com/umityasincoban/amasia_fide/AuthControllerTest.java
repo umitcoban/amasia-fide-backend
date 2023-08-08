@@ -37,7 +37,7 @@ public class AuthControllerTest {
 
         TokenDTO token = new TokenDTO("", System.currentTimeMillis(), 401);
         Mockito.when(userService.register(registerDTO)).thenReturn(token);
-
+        System.out.println();
         ObjectMapper objectMapper = new ObjectMapper();
         String registerDTOJson = objectMapper.writeValueAsString(registerDTO);
 
