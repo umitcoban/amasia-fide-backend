@@ -11,7 +11,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
@@ -34,7 +33,8 @@ public class AuthControllerTest {
 
     @Test
     void createUserTest() throws Exception {
-        RegisterDTO registerDTO = new RegisterDTO("Ümit", "Yasin", "Çoban", "test123@test.com", "12345678", "11111111111", "5353451879");
+        RegisterDTO registerDTO = new RegisterDTO("Ümit", "Yasin", "Çoban", "test123@test.com", "1111111111", "11111111111", "5373591579");
+
         TokenDTO token = new TokenDTO("", System.currentTimeMillis(), 401);
         Mockito.when(userService.register(registerDTO)).thenReturn(token);
 
@@ -46,6 +46,6 @@ public class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .with(SecurityMockMvcRequestPostProcessors.csrf())
-        ).andExpect(status().isOk());
+            ).andExpect(status().isOk());
     }
 }
