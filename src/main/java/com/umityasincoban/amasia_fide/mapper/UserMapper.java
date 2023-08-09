@@ -2,6 +2,7 @@ package com.umityasincoban.amasia_fide.mapper;
 
 import com.umityasincoban.amasia_fide.dto.RegisterDTO;
 import com.umityasincoban.amasia_fide.dto.UserDTO;
+import com.umityasincoban.amasia_fide.dto.UserUpdateDTO;
 import com.umityasincoban.amasia_fide.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -21,6 +22,8 @@ public interface UserMapper {
     @Mapping(source = "userId", target = "id")
     List<UserDTO> userToUsersDTO(List<User> users);
 
-    User userToUserDTO(UserDTO userDTO);
+    User userDTOToUser(UserDTO userDTO);
+    @Mapping(source = "id", target = "userId")
+    User userUpdateDTOToUser(UserUpdateDTO user);
 
 }
