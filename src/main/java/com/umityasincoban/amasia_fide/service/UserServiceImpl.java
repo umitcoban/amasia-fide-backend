@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Random;
 import java.util.logging.Logger;
 
 @Service
@@ -28,6 +29,7 @@ public class UserServiceImpl implements UserService {
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
     private final UserMapper userMapper = UserMapper.INSTANCE;
+    private Random random;
 
     public TokenDTO login(LoginDTO request) {
         try {

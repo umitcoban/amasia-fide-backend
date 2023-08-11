@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-
+@Schema(description = "Information required for the user to register")
 public record RegisterDTO(
         @JsonProperty(required = true)
         @NotBlank(message = "firstname should be not empty or null")
@@ -25,7 +25,7 @@ public record RegisterDTO(
         String email,
         @JsonProperty(required = true)
         @Size(min = 6, message = "Password should be min 6 characters")
-        @Schema(example = "test@example.com", description = "user email addresses and username")
+        @Schema(example = "12345678", description = "user email addresses and username", minimum = "6")
         String password,
         @JsonProperty(required = true)
         @Size(min = 11, max = 11, message = "citizenNumber should be max 11 and min 11 character")

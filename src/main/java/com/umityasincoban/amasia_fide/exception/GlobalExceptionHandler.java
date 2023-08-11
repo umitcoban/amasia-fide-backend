@@ -1,6 +1,7 @@
 package com.umityasincoban.amasia_fide.exception;
 
 import com.umityasincoban.amasia_fide.dto.ExceptionDTO;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ValidationException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -19,9 +20,10 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class GlobalExceptionHandler {
     private static final Logger logger = Logger.getLogger(GlobalExceptionHandler.class.getName());
+    private static final String userAlreadyExistMessage = "the user has already been created with these arguments.";
 
     @ExceptionHandler(Exception.class)
-    public static ResponseEntity<ExceptionDTO<String>> globalExceptionHandler(Exception e){
+    public static ResponseEntity<ExceptionDTO<String>> globalExceptionHandler(Exception e, HttpServletRequest request){
         logger.warning(e.getMessage());
         logger.warning(Arrays.toString(e.getStackTrace()));
         var uuid = UUID.randomUUID().toString();
@@ -30,7 +32,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ExceptionDTO<List<String>>> validationExceptionHandler(MethodArgumentNotValidException e) {
+    public ResponseEntity<ExceptionDTO<List<String>>> validationExceptionHandler(MethodArgumentNotValidException e, HttpServletRequest request) {
         List<String> errorMessages = e.getBindingResult()
                 .getAllErrors()
                 .stream()
@@ -43,16 +45,16 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UserAlreadyExistException.class)
-    public static ResponseEntity<ExceptionDTO<String>> badCredentialException(UserAlreadyExistException badCredentialsException){
-        logger.warning(badCredentialsException.getMessage());
-        return new ResponseEntity<>(new ExceptionDTO<>(HttpStatus.BAD_REQUEST.value(), "Please must be entered valid user information",
+    public static ResponseEntity<ExceptionDTO<String>> badCredentialException(UserAlreadyExistException userAlreadyExistException, HttpServletRequest request){
+        logger.warning(userAlreadyExistException.getMessage());
+        return new ResponseEntity<>(new ExceptionDTO<>(HttpStatus.BAD_REQUEST.value(), userAlreadyExistMessage,
                 System.currentTimeMillis()), HttpStatus.BAD_REQUEST);
     }
     @ExceptionHandler(UserNotFoundException.class)
-    public static ResponseEntity<ExceptionDTO<String>> userNotFoundException(UserNotFoundException userNotFoundException){
+    public static ResponseEntity<ExceptionDTO<String>> userNotFoundException(UserNotFoundException userNotFoundException, HttpServletRequest request){
         logger.warning(userNotFoundException.getMessage());
 
-        return new ResponseEntity<>(new ExceptionDTO<>(HttpStatus.BAD_REQUEST.value(), userNotFoundException.getMessage(),
+        return new ResponseEntity<>(new ExceptionDTO<>(HttpStatus.BAD_REQUEST.value(), "Lütfen bilgilerinizin doğrulundan emin olun",
                 System.currentTimeMillis()), HttpStatus.BAD_REQUEST);
     }
 
