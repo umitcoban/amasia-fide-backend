@@ -1,8 +1,8 @@
 package com.umityasincoban.amasia_fide.dto;
 
-public record ExceptionDTO (
+public record ExceptionDTO<T> (
         int status,
-        String message,
+        T message,
         long timeStamp
 )
 { }

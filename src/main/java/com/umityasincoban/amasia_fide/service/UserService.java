@@ -2,105 +2,24 @@ package com.umityasincoban.amasia_fide.service;
 
 import com.umityasincoban.amasia_fide.dto.*;
 import com.umityasincoban.amasia_fide.entity.User;
-import com.umityasincoban.amasia_fide.mapper.UserMapper;
-import com.umityasincoban.amasia_fide.repository.UserRepository;
-import com.umityasincoban.amasia_fide.util.JwtUtil;
-import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.logging.Logger;
 
-@Service
-@RequiredArgsConstructor
-public class UserService {
-    private static final Logger logger = Logger.getLogger(UserService.class.getName());
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtService;
-    private final AuthenticationManager authenticationManager;
-    private final EmailService emailService;
-    private final UserMapper userMapper = UserMapper.INSTANCE;
+public interface UserService {
+    TokenDTO login(LoginDTO request);
 
-    public TokenDTO login(LoginDTO request) {
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.username(), request.password())
-            );
-            var user = userRepository.findByEmail(request.username()).orElseThrow();
-            var jwt = jwtService.generateToken(user);
-            emailService.sendWelcomeEmail(request.username());
-            return new TokenDTO(jwt, System.currentTimeMillis(), 200);
-        } catch (Exception e) {
-            logger.warning(e.getMessage());
-            throw e;
-        }
-    }
+    TokenDTO register(RegisterDTO request);
 
-    public TokenDTO register(RegisterDTO request) {
-        var user = userMapper.registerDtoToUser(request);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.save(user);
-        var jwt = jwtService.generateToken(user);
-        emailService.sendWelcomeEmail(request.email());
-        return new TokenDTO(jwt, System.currentTimeMillis(), 200);
-    }
+    UserDTO getUserById(long id);
 
-    public User getUserById(long id) {
-        return userRepository.findByUserId(id).orElseThrow();
-    }
+    UserDTO getUserByEmail(String email);
 
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(RuntimeException::new);
-    }
+    boolean activateUserById(UserActivateDTO userActivateDTO);
 
-    public User getUserAndUpdate(User user) {
-        User foundedUser = userRepository.findByEmail(user.getEmail()).orElseThrow(RuntimeException::new);
-        user.setUserId(foundedUser.getUserId());
-        return userRepository.saveAndFlush(user);
-    }
+    UserDTO createNewUser(RegisterDTO registerDTO);
 
-    @CacheEvict(value = "usersDTO", allEntries = true)
-    public boolean activateUserById(UserActivateDTO activateDTO) {
-        try {
-            userRepository.activateUserById(activateDTO.id(), activateDTO.status());
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
+    UserDTO getUserAndUpdate(UserUpdateDTO userUpdateDTO);
 
-    @CacheEvict(value = "usersDTO", allEntries = true)
-    public User createNewUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.saveAndFlush(user);
-    }
+    List<UserDTO> getAllUsers();
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
-
-    @Cacheable(value = "usersDTO")
-    public List<UserDTO> getAllUsersDto() {
-        return userMapper.userToUsersDTO(getAllUsers());
-    }
-
-    public UserDTO getUserDtoById(long id) {
-        return userMapper.userToUserDTO(getUserById(id));
-    }
-
-    @CacheEvict(value = "usersDTO", allEntries = true)
-    public UserDTO createAndGetNewUserDTO(RegisterDTO registerDTO) {
-        return userMapper.userToUserDTO(createNewUser(userMapper.registerDtoToUser(registerDTO)));
-    }
-
-    @CacheEvict(value = "usersDTO", allEntries = true)
-    public UserDTO updateAndGetNewUserDTO(RegisterDTO registerDTO) {
-        return userMapper.userToUserDTO(getUserAndUpdate(userMapper.registerDtoToUser(registerDTO)));
-    }
 }

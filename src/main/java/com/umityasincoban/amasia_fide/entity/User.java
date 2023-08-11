@@ -38,38 +38,27 @@ public class User implements UserDetails {
     private long userId;
 
     @Column(name = "first_name", length = 250, nullable = false)
-    @Size(min = 1, max = 250)
-    @NotBlank()
     private String firstName;
 
     @Column(name = "middle_name", length = 250)
     private String middleName;
 
     @Column(name = "last_name", nullable = false ,length = 250)
-    @NotBlank()
-    @Size(min = 1, max = 250)
     private String lastName;
 
     @Column(name = "citizen_number", nullable = false ,length = 11, unique = true)
-    @NotBlank()
-    @Size(min = 11, max = 11)
     private String citizenNumber;
 
     @Column(name = "email", nullable = false, length = 250, unique = true)
-    @Email()
-    @Size(min = 5, max=250)
     private String email;
 
     @Column(name = "phone", nullable = false, length = 17, unique = true)
-    @NotBlank()
     private String phone;
 
     @Column(name = "is_active", nullable = false)
     private boolean isActive;
 
     @Column(nullable = false, length = 200)
-    @NotBlank()
-    @Size(min = 6, max = 200)
     private String password;
 
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.LAZY)

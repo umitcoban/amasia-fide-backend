@@ -5,7 +5,7 @@ create table users
     first_name     varchar(250)          not null,
     middle_name    varchar(250),
     last_name      varchar(250)          not null,
-    citizen_number char(11)              not null,
+    citizen_number char(11)              not null unique,
     email          varchar(250)          not null unique,
     phone          char(17)              not null unique,
     password       varchar(200)          not null check (length(password) >= 6),
