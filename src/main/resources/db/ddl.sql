@@ -8,6 +8,8 @@ create table users
     citizen_number char(11)              not null unique,
     email          varchar(250)          not null unique,
     phone          char(17)              not null unique,
+    registration_code int                not null,
+    registration_code_count int          not null default (0) check (registration_code <= 3 or registration_code >= 0),
     password       varchar(200)          not null check (length(password) >= 6),
     is_active      boolean                        default (true),
     created_at     timestamp             not null default (current_timestamp),
@@ -205,6 +207,20 @@ create table report_details
     user_id          bigint        not null references users (user_id) on delete restrict on update cascade,
     created_at       timestamp     not null default (current_timestamp),
     updated_at       timestamp     not null default (current_timestamp)
+);
+
+create table languages(
+                          language_id serial primary key,
+                          name varchar not null unique,
+                          key char(10) not null unique
+);
+
+create table email_templates(
+                                email_template_id bigserial primary key,
+                                name varchar not null,
+                                subject varchar not null,
+                                body varchar not null,
+                                language_id int not null references languages(language_id) on delete RESTRICT on update cascade
 );
 
 create or replace function update_updated_at_column()

@@ -31,7 +31,9 @@ public class AuthController {
     @PostMapping(path = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
     public TokenDTO registerUser(@RequestBody @Valid RegisterDTO registerDTO){
         logger.info("request '/register' : {}", registerDTO.toString());
-        return userService.register(registerDTO);
+        var tokenDTO = userService.register(registerDTO);
+        logger.info("token: {}",tokenDTO);
+        return tokenDTO;
     }
     @Operation(description = "To login and get tokens")
     @PostMapping(path = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)

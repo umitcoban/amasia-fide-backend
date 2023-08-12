@@ -1,20 +1,16 @@
 package com.umityasincoban.amasia_fide.service;
 
 import com.umityasincoban.amasia_fide.dto.*;
-import com.umityasincoban.amasia_fide.entity.User;
 import com.umityasincoban.amasia_fide.exception.UserAlreadyExistException;
 import com.umityasincoban.amasia_fide.exception.UserNotFoundException;
 import com.umityasincoban.amasia_fide.mapper.UserMapper;
 import com.umityasincoban.amasia_fide.repository.UserRepository;
 import com.umityasincoban.amasia_fide.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
@@ -29,7 +25,7 @@ public class UserServiceImpl implements UserService {
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
     private final UserMapper userMapper = UserMapper.INSTANCE;
-    private Random random;
+    private static final Random random = new Random();
 
     public TokenDTO login(LoginDTO request) {
         try {
@@ -51,9 +47,10 @@ public class UserServiceImpl implements UserService {
         });
         var user = userMapper.registerDtoToUser(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRegistrationCode(random.nextInt(100000, 999999));
         userRepository.save(user);
         var jwt = jwtService.generateToken(user);
-        emailService.sendWelcomeEmail(request.email());
+        emailService.sendEmail(request.email(),"", "");
         return new TokenDTO(jwt, System.currentTimeMillis(), 200);
     }
 

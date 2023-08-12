@@ -33,7 +33,7 @@ public record RegisterDTO(
         String citizenNumber,
         @JsonProperty(required = true)
         @NotBlank(message = "phone should be not empty or null")
-        @Size(min = 10, max = 10)
+        @Size(min = 11, max = 11)
         @Schema(example = "5051111111", description = "user phone number", minimum = "10", maximum = "10")
         String phone
 ) {
