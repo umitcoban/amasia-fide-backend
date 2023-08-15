@@ -58,6 +58,9 @@ public class User implements UserDetails {
     @Column(name = "registration_code_count")
     private int registrationCodeCount;
 
+    @Column(name = "registration_code_last_used_time", nullable = false)
+    private ZonedDateTime registrationCodeLastUsedTime;
+
     @Column(name = "is_active", nullable = false)
     private boolean isActive;
 

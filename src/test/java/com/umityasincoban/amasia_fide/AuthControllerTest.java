@@ -37,7 +37,7 @@ public class AuthControllerTest {
 
     @Test
     void createUserTest() throws Exception {
-        RegisterDTO registerDTO = new RegisterDTO("Ümit", "Yasin", "Çoban", "test123@test.com", "1111111111", "11111111111", "1111111111");
+        RegisterDTO registerDTO = new RegisterDTO("Ümit", "Yasin", "Çoban", "test123@test.com", "1111111111", "11111111111", "05373591576");
         String registerDTOJson = objectMapper.writeValueAsString(registerDTO);
 
         mockMvc.perform(MockMvcRequestBuilders

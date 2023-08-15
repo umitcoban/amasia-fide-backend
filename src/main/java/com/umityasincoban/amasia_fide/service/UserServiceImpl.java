@@ -1,29 +1,39 @@
 package com.umityasincoban.amasia_fide.service;
 
 import com.umityasincoban.amasia_fide.dto.*;
+import com.umityasincoban.amasia_fide.entity.EmailTemplate;
+import com.umityasincoban.amasia_fide.entity.Language;
 import com.umityasincoban.amasia_fide.exception.UserAlreadyExistException;
 import com.umityasincoban.amasia_fide.exception.UserNotFoundException;
 import com.umityasincoban.amasia_fide.mapper.UserMapper;
 import com.umityasincoban.amasia_fide.repository.UserRepository;
 import com.umityasincoban.amasia_fide.util.JwtUtil;
+import com.umityasincoban.amasia_fide.util.TemplateUtil;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Logger;
+
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private static final Logger logger = Logger.getLogger(UserServiceImpl.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class.getName());
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtService;
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
+    private final LanguageService languageService;
+    private final EmailTemplateService emailTemplateService;
     private final UserMapper userMapper = UserMapper.INSTANCE;
     private static final Random random = new Random();
 
@@ -36,21 +46,29 @@ public class UserServiceImpl implements UserService {
             var jwt = jwtService.generateToken(user);
             return new TokenDTO(jwt, System.currentTimeMillis(), 200);
         } catch (Exception e) {
-            logger.warning(e.getMessage());
+            logger.error(e.getMessage());
             throw e;
         }
     }
 
-    public TokenDTO register(RegisterDTO request) {
-        userRepository.findByEmailOrCitizenNumberOrPhone(request.email(), request.citizenNumber(), request.phone()).ifPresent(user -> {
+    public TokenDTO register(RegisterDTO registerDTO, String locale) {
+        userRepository.findByEmailOrCitizenNumberOrPhone(registerDTO.email(), registerDTO.citizenNumber(), registerDTO.phone()).ifPresent(user -> {
             throw new UserAlreadyExistException(String.format("%s email addresses or %s phone or %s citizen number already used", user.getEmail(),user.getPhone(), user.getCitizenNumber()));
         });
-        var user = userMapper.registerDtoToUser(request);
+        logger.info("locale {}", locale);
+        var user = userMapper.registerDtoToUser(registerDTO);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRegistrationCode(random.nextInt(100000, 999999));
+        user.setRegistrationCodeLastUsedTime(ZonedDateTime.now());
         userRepository.save(user);
         var jwt = jwtService.generateToken(user);
-        emailService.sendEmail(request.email(),"", "");
+        Language localeLanguage = languageService.getLanguageByKey("tr-TR");
+        EmailTemplate registrationCodeTemplate = emailTemplateService.getEmailTemplateByNameAndLanguage("registration_code", localeLanguage);
+        var parameters = new HashMap<String, String>();
+        parameters.put("NAME", registerDTO.firstName());
+        parameters.put("REGISTRATION_CODE", String.valueOf(user.getRegistrationCode()));
+        String body = TemplateUtil.convertTemplate(registrationCodeTemplate.getBody(), parameters);
+        emailService.sendEmail(registerDTO.email(),registrationCodeTemplate.getSubject().toUpperCase(), body);
         return new TokenDTO(jwt, System.currentTimeMillis(), 200);
     }
 

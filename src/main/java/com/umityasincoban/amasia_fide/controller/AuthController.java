@@ -6,6 +6,7 @@ import com.umityasincoban.amasia_fide.dto.RegisterDTO;
 import com.umityasincoban.amasia_fide.dto.TokenDTO;
 import com.umityasincoban.amasia_fide.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +30,9 @@ public class AuthController {
 
     @Operation(description = "Create new user. User default inactive")
     @PostMapping(path = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public TokenDTO registerUser(@RequestBody @Valid RegisterDTO registerDTO){
+    public TokenDTO registerUser(@RequestBody @Valid RegisterDTO registerDTO, HttpServletRequest request){
         logger.info("request '/register' : {}", registerDTO.toString());
-        var tokenDTO = userService.register(registerDTO);
+        var tokenDTO = userService.register(registerDTO, request.getHeader("Accept-Language"));
         logger.info("token: {}",tokenDTO);
         return tokenDTO;
     }
