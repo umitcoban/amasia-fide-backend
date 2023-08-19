@@ -58,8 +58,8 @@ public class User implements UserDetails {
     @Column(name = "registration_code_count")
     private int registrationCodeCount;
 
-    @Column(name = "registration_code_last_used_time", nullable = false)
-    private ZonedDateTime registrationCodeLastUsedTime;
+    @Column(name = "registration_code_created_time", nullable = false)
+    private ZonedDateTime registrationCreatedTime;
 
     @Column(name = "is_active", nullable = false)
     private boolean isActive;
@@ -75,12 +75,10 @@ public class User implements UserDetails {
 
     @Column(name= "created_at", nullable = false, updatable = false)
     @CreationTimestamp
-    @FutureOrPresent
     private ZonedDateTime createdAt;
 
     @Column(name= "updated_at", nullable = false)
     @UpdateTimestamp
-    @FutureOrPresent
     private ZonedDateTime updatedAt;
 
     @Override

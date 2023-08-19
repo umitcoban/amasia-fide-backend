@@ -1,7 +1,13 @@
 package com.umityasincoban.amasia_fide.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+
 public record UserActivateDTO(
-        long id,
-        boolean status
+        @Email
+        @NotNull
+        String email,
+        @NotNull
+        int activationCode
 ) {
 }

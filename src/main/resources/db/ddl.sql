@@ -10,7 +10,7 @@ create table users
     phone          char(17)              not null unique,
     registration_code int                not null,
     registration_code_count int          not null default (0) check (registration_code <= 3 or registration_code >= 0),
-    registration_code_last_used_time timestamp not null default (current_timestamp),
+    registration_code_created_time timestamp not null default (current_timestamp),
     password       varchar(200)          not null check (length(password) >= 6),
     is_active      boolean                        default (true),
     created_at     timestamp             not null default (current_timestamp),

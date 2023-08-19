@@ -52,7 +52,7 @@ public class UserController {
 
     @PutMapping(path = "/activate", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiResponse<Boolean> activateUserById(@RequestBody UserActivateDTO activateDTO){
-        return new ApiResponse<>(HttpStatus.OK.value(), userService.activateUserById(activateDTO), System.currentTimeMillis());
+        return new ApiResponse<>(HttpStatus.OK.value(), userService.activateUserByEmailAndRegistrationCode(activateDTO), System.currentTimeMillis());
     }
 
 }

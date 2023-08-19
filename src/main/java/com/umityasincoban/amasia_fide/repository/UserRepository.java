@@ -3,6 +3,7 @@ package com.umityasincoban.amasia_fide.repository;
 import com.umityasincoban.amasia_fide.entity.User;
 import io.lettuce.core.dynamic.annotation.Param;
 import jakarta.transaction.Transactional;
+import org.checkerframework.checker.nullness.Opt;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -12,11 +13,13 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByEmail(String email);
+    Optional<User> findUserByEmail(String email);
 
-    Optional<User> findByEmailAndPassword(String email, String password);
+    Optional<User> findUserByEmailAndPassword(String email, String password);
 
     Optional<User> findByUserId(long id);
+
+    Optional<User> findUserByEmailAndRegistrationCode(String username, int registrationCode);
 
     Optional<User> findByEmailOrCitizenNumberOrPhone(String email, String citizenNumber, String phone);
 
