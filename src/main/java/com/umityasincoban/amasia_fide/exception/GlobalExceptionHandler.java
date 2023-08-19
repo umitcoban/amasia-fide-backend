@@ -2,33 +2,48 @@ package com.umityasincoban.amasia_fide.exception;
 
 import com.umityasincoban.amasia_fide.dto.ExceptionDTO;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ValidationException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import javax.security.auth.login.AccountLockedException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
+
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
     private static final Logger logger = Logger.getLogger(GlobalExceptionHandler.class.getName());
-    private static final String userAlreadyExistMessage = "the user has already been created with these arguments.";
 
     @ExceptionHandler(Exception.class)
     public static ResponseEntity<ExceptionDTO<String>> globalExceptionHandler(Exception e, HttpServletRequest request){
+        logger.warning(e.getClass().getName());
         logger.warning(e.getMessage());
-        logger.warning(Arrays.toString(e.getStackTrace()));
+        logger.warning(Arrays.asList(e.getStackTrace()).toString());
         var uuid = UUID.randomUUID().toString();
         logger.warning("uuid: " + uuid);
-        return new ResponseEntity<>(new ExceptionDTO<>(HttpStatus.BAD_REQUEST.value(), String.format("Oops! Something went wrong {%s}", uuid), System.currentTimeMillis()), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ExceptionDTO<>(HttpStatus.BAD_REQUEST.value(), String.format("Hay Aksi! Bir şeylerde hata oldu {%s}",
+                uuid), System.currentTimeMillis()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public static ResponseEntity<ExceptionDTO<String>> badCredentialExceptionHandler(BadCredentialsException e, HttpServletRequest request){
+        logger.warning(e.getMessage());
+        logger.warning(Arrays.asList(e.getStackTrace()).toString());
+        return new ResponseEntity<>(new ExceptionDTO<>(HttpStatus.BAD_REQUEST.value(), "Lütfen güvenlik bilgierinizi kontrol ediniz.", System.currentTimeMillis()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AccountLockedException.class)
+    public static void accountLockedExceptionHandler(AccountLockedException e, HttpServletRequest request){
+        logger.warning(e.getClass().getName());
+        logger.warning(e.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -40,22 +55,43 @@ public class GlobalExceptionHandler {
                 .toList();
 
         ExceptionDTO<List<String>> response = new ExceptionDTO<>(HttpStatus.BAD_REQUEST.value(), errorMessages, System.currentTimeMillis());
-
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(UserAlreadyExistException.class)
     public static ResponseEntity<ExceptionDTO<String>> badCredentialException(UserAlreadyExistException userAlreadyExistException, HttpServletRequest request){
         logger.warning(userAlreadyExistException.getMessage());
-        return new ResponseEntity<>(new ExceptionDTO<>(HttpStatus.BAD_REQUEST.value(), userAlreadyExistMessage,
+        return new ResponseEntity<>(new ExceptionDTO<>(HttpStatus.BAD_REQUEST.value(), "Kullanıcı zaten mevcut. Lütfen bilgilerinizi kontrol ediniz.",
                 System.currentTimeMillis()), HttpStatus.BAD_REQUEST);
     }
     @ExceptionHandler(UserNotFoundException.class)
     public static ResponseEntity<ExceptionDTO<String>> userNotFoundException(UserNotFoundException userNotFoundException, HttpServletRequest request){
         logger.warning(userNotFoundException.getMessage());
-
-        return new ResponseEntity<>(new ExceptionDTO<>(HttpStatus.BAD_REQUEST.value(), "Lütfen bilgilerinizin doğrulundan emin olun",
+        logger.warning(Arrays.asList(userNotFoundException.getStackTrace()).toString());
+        return new ResponseEntity<>(new ExceptionDTO<>(HttpStatus.BAD_REQUEST.value(), "Lütfen bilgilerinizi eksiksiz girdiğinizden emin olunuz.",
                 System.currentTimeMillis()), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InvalidRegistrationCodeException.class)
+    public static ResponseEntity<ExceptionDTO<String>> invalidRegistrationCodeException(InvalidRegistrationCodeException invalidRegistrationCodeException, HttpServletRequest request){
+        logger.warning(invalidRegistrationCodeException.getMessage());
+
+        return new ResponseEntity<>(new ExceptionDTO<>(HttpStatus.BAD_REQUEST.value(), "Girmiş olduğunuz kod geçersiz.",
+                System.currentTimeMillis()), HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(RequestTimeOutException.class)
+    public static ResponseEntity<ExceptionDTO<String>> requestTimeOutException(RequestTimeOutException requestTimeOutException, HttpServletRequest request){
+        logger.warning(requestTimeOutException.getMessage());
+
+        return new ResponseEntity<>(new ExceptionDTO<>(HttpStatus.BAD_REQUEST.value(), "İstediğiniz zaman aşımına uğradı lütfen daha sonra tekrar deneyiniz.",
+                System.currentTimeMillis()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RateLimitExceededException.class)
+    public static ResponseEntity<ExceptionDTO<String>> rateLimitExceededException(RateLimitExceededException rateLimitExceededException, HttpServletRequest request){
+        logger.warning(rateLimitExceededException.getMessage());
+
+        return new ResponseEntity<>(new ExceptionDTO<>(HttpStatus.BAD_REQUEST.value(), "Maksimum istek sayısına ulaştınız. Lütfen daha sonra tekrar deneyiniz.",
+                System.currentTimeMillis()), HttpStatus.BAD_REQUEST);
+    }
 }

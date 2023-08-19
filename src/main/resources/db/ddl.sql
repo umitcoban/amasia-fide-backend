@@ -1,4 +1,4 @@
-create database db_amasia_fide;
+
 create table users
 (
     user_id        bigserial primary key not null,
@@ -8,6 +8,9 @@ create table users
     citizen_number char(11)              not null unique,
     email          varchar(250)          not null unique,
     phone          char(17)              not null unique,
+    registration_code int                not null,
+    registration_code_count int          not null default (0) check (registration_code <= 3 or registration_code >= 0),
+    registration_code_created_time timestamp not null default (current_timestamp),
     password       varchar(200)          not null check (length(password) >= 6),
     is_active      boolean                        default (true),
     created_at     timestamp             not null default (current_timestamp),
@@ -207,6 +210,23 @@ create table report_details
     updated_at       timestamp     not null default (current_timestamp)
 );
 
+create table languages(
+                          language_id serial primary key,
+                          name varchar not null unique,
+                          key char(10) not null unique
+);
+
+
+
+create table email_templates(
+                                email_template_id bigserial primary key,
+                                name varchar not null,
+                                subject varchar not null,
+                                body varchar not null,
+                                language_id int not null references languages(language_id) on delete RESTRICT on update cascade
+);
+
+
 create or replace function update_updated_at_column()
     returns trigger
 as
@@ -352,9 +372,13 @@ end;
 $$;
 
 create or replace procedure sp_activate_use_by_id(bigint, boolean)
-language plpgsql
+    language plpgsql
 as $$
-    begin
-        update users set is_active = $2 where users.user_id = $1;
-    end;
+begin
+    update users set is_active = $2 where users.user_id = $1;
+end;
 $$;
+
+insert into languages (name, key) values ('Türkçe', 'tr-TR');
+
+insert into email_templates (name, subject, body, language_id) VALUES ('registration_code', 'Amasia Fide Aktifleştirme Kodu', 'Merhaba [NAME], \nAktifleştirme Kodunuz: [REGISTRATION_CODE]. \nAmasia Fide', 1);

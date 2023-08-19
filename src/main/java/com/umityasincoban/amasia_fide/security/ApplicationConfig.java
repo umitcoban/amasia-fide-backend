@@ -1,5 +1,6 @@
 package com.umityasincoban.amasia_fide.security;
 
+import com.umityasincoban.amasia_fide.exception.UserNotFoundException;
 import com.umityasincoban.amasia_fide.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -21,8 +22,8 @@ public class ApplicationConfig {
 
     @Bean
     UserDetailsService userDetailsService() {
-        return username -> userRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return username -> userRepository.findUserByEmail(username)
+                .orElseThrow(UserNotFoundException::new);
     }
 
     @Bean

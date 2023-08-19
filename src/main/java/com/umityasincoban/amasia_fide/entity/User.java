@@ -1,10 +1,7 @@
 package com.umityasincoban.amasia_fide.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,7 +29,7 @@ public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_user_id_seq")
-    @SequenceGenerator(name = "users_user_id_seq", sequenceName = "users_user_id_seq", initialValue = 1,
+    @SequenceGenerator(name = "users_user_id_seq", sequenceName = "users_user_id_seq",
             allocationSize = 1)
     @Column(name = "user_id")
     private long userId;
@@ -55,6 +52,15 @@ public class User implements UserDetails {
     @Column(name = "phone", nullable = false, length = 17, unique = true)
     private String phone;
 
+    @Column(name = "registration_code")
+    private int registrationCode;
+
+    @Column(name = "registration_code_count")
+    private int registrationCodeCount;
+
+    @Column(name = "registration_code_created_time", nullable = false)
+    private ZonedDateTime registrationCreatedTime;
+
     @Column(name = "is_active", nullable = false)
     private boolean isActive;
 
@@ -69,12 +75,10 @@ public class User implements UserDetails {
 
     @Column(name= "created_at", nullable = false, updatable = false)
     @CreationTimestamp
-    @FutureOrPresent
     private ZonedDateTime createdAt;
 
     @Column(name= "updated_at", nullable = false)
     @UpdateTimestamp
-    @FutureOrPresent
     private ZonedDateTime updatedAt;
 
     @Override

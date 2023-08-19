@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.logging.Logger;
@@ -21,15 +22,16 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
-    public void sendWelcomeEmail(String to) {
+    @Async
+    public void sendEmail(String to, String title, String body) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(email);
             message.setTo(to);
-            message.setSubject("Welcome to Our Application");
-            message.setText("Thank you for registering to our application!");
+            message.setSubject(title);
+            message.setText(body);
             mailSender.send(message);
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.warning(e.getMessage());
             throw e;
         }
