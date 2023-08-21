@@ -2,10 +2,7 @@ package com.umityasincoban.amasia_fide.service;
 
 import com.umityasincoban.amasia_fide.annotation.RateLimit;
 import com.umityasincoban.amasia_fide.dto.*;
-import com.umityasincoban.amasia_fide.entity.ApiResponse;
-import com.umityasincoban.amasia_fide.entity.EmailTemplate;
-import com.umityasincoban.amasia_fide.entity.Language;
-import com.umityasincoban.amasia_fide.entity.User;
+import com.umityasincoban.amasia_fide.entity.*;
 import com.umityasincoban.amasia_fide.exception.*;
 import com.umityasincoban.amasia_fide.mapper.UserMapper;
 import com.umityasincoban.amasia_fide.repository.UserRepository;
@@ -26,9 +23,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 
 @Service
@@ -73,6 +68,11 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRegistrationCode(random.nextInt(MIN_RANDOM_CODE, MAX_RANDOM_CODE));
         user.setRegistrationCreatedTime(ZonedDateTime.now());
+        var role = new Role();
+        role.setRole(ERole.ROLE_USER);
+        var roles = new HashSet<Role>();
+        roles.add(role);
+        user.setRoles(roles);
         userRepository.save(user);
         Language localeLanguage = languageService.getLanguageByKey("tr-TR");
         EmailTemplate registrationCodeTemplate = emailTemplateService.getEmailTemplateByNameAndLanguage("registration_code", localeLanguage);
@@ -99,6 +99,8 @@ public class UserServiceImpl implements UserService {
         var existUser = userRepository.findUserByEmail(userActivateDTO.email()).orElseThrow(UserNotFoundException::new);
         if(existUser.getRegistrationCodeCount() >= 3)
             throw new RateLimitExceededException();
+        if(existUser.isActive())
+            throw new AlreadyActivatedException();
         if (existUser.getRegistrationCode() != userActivateDTO.activationCode()) {
             incrementRegistrationCodeCount(existUser);
             throw new InvalidRegistrationCodeException();

@@ -47,7 +47,7 @@ public class AuthControllerTest {
                 .with(SecurityMockMvcRequestPostProcessors.csrf())
             ).andExpect(status().isOk());
 
-        Optional<User> foundUser = userRepository.findByEmail("test123@test.com");
+        Optional<User> foundUser = userRepository.findUserByEmail("test123@test.com");
         Assertions.assertTrue(foundUser.isPresent());
         Assertions.assertEquals(registerDTO.email(), foundUser.get().getEmail());
     }

@@ -94,4 +94,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new ExceptionDTO<>(HttpStatus.BAD_REQUEST.value(), "Maksimum istek sayısına ulaştınız. Lütfen daha sonra tekrar deneyiniz.",
                 System.currentTimeMillis()), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(AlreadyActivatedException.class)
+    public static ResponseEntity<ExceptionDTO<String>> alreadyActivatedException(AlreadyActivatedException alreadyActivatedException, HttpServletRequest request){
+        logger.warning(alreadyActivatedException.getMessage());
+
+        return new ResponseEntity<>(new ExceptionDTO<>(HttpStatus.BAD_REQUEST.value(), "Hesap zaten daha önce aktif edilmiş.",
+                System.currentTimeMillis()), HttpStatus.BAD_REQUEST);
+    }
+
 }
