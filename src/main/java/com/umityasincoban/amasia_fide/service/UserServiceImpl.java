@@ -5,6 +5,7 @@ import com.umityasincoban.amasia_fide.dto.*;
 import com.umityasincoban.amasia_fide.entity.*;
 import com.umityasincoban.amasia_fide.exception.*;
 import com.umityasincoban.amasia_fide.mapper.UserMapper;
+import com.umityasincoban.amasia_fide.repository.RoleRepository;
 import com.umityasincoban.amasia_fide.repository.UserRepository;
 import com.umityasincoban.amasia_fide.util.JwtUtil;
 import com.umityasincoban.amasia_fide.util.TemplateUtil;
@@ -37,6 +38,7 @@ public class UserServiceImpl implements UserService {
     private final EmailService emailService;
     private final LanguageService languageService;
     private final EmailTemplateService emailTemplateService;
+    private final RoleRepository roleRepository;
     private final UserMapper userMapper = UserMapper.INSTANCE;
     private static final Random random = new Random();
     private static final int MAX_RANDOM_CODE = 999999;
@@ -68,8 +70,11 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRegistrationCode(random.nextInt(MIN_RANDOM_CODE, MAX_RANDOM_CODE));
         user.setRegistrationCreatedTime(ZonedDateTime.now());
-        var role = new Role();
-        role.setRole(ERole.ROLE_USER);
+        var role = roleRepository.findRoleByRoleName(ERole.ROLE_USER).orElseGet(() -> {
+            Role newRole = new Role();
+            newRole.setRole(ERole.ROLE_USER);
+            return newRole;
+        });
         var roles = new HashSet<Role>();
         roles.add(role);
         user.setRoles(roles);
