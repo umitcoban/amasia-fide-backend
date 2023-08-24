@@ -11,9 +11,11 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -32,6 +34,15 @@ public class UserController {
     @PreAuthorize("hasAuthority('ROLE_USER')")
     public ApiResponse<UserDTO> getUserById(@PathVariable long id){
         return new ApiResponse<>(HttpStatus.OK.value(), userService.getUserById(id), System.currentTimeMillis());
+    }
+
+    @GetMapping("/profile")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    public ApiResponse<UserDTO> getUserByProfileInfoByPrincipal(Principal principal){
+        var userEmail = principal.getName();
+        if(userEmail == null)
+            throw new BadCredentialsException("");
+        return new ApiResponse<>(HttpStatus.OK.value(), userService.getUserByEmail(userEmail), System.currentTimeMillis());
     }
     @GetMapping
     public ApiResponse<List<UserDTO>> getAllUsers(){
