@@ -11,18 +11,16 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
 @AllArgsConstructor
 public class UserController {
-
     private final UserService userService;
-
-
     @Operation(summary = "Get User By Id", description = "returns a single user by id")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Successfully retrieved"),
@@ -31,10 +29,10 @@ public class UserController {
             })
     })
     @GetMapping(path = "/{id}")
-    public ApiResponse<UserDTO> getUserById(@PathVariable @Schema(description = "user id value", example = "1") long id){
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    public ApiResponse<UserDTO> getUserById(@PathVariable long id){
         return new ApiResponse<>(HttpStatus.OK.value(), userService.getUserById(id), System.currentTimeMillis());
     }
-
     @GetMapping
     public ApiResponse<List<UserDTO>> getAllUsers(){
         return new ApiResponse<>(HttpStatus.OK.value(), userService.getAllUsers(), System.currentTimeMillis());

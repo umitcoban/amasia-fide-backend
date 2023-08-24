@@ -1,6 +1,7 @@
 package com.umityasincoban.amasia_fide.exception;
 
 import com.umityasincoban.amasia_fide.dto.ExceptionDTO;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -100,6 +101,14 @@ public class GlobalExceptionHandler {
         logger.warning(alreadyActivatedException.getMessage());
 
         return new ResponseEntity<>(new ExceptionDTO<>(HttpStatus.BAD_REQUEST.value(), "Hesap zaten daha önce aktif edilmiş.",
+                System.currentTimeMillis()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public static ResponseEntity<ExceptionDTO<String>> expiredJWTException(ExpiredJwtException expiredJwtException, HttpServletRequest request){
+        logger.warning(expiredJwtException.getMessage());
+
+        return new ResponseEntity<>(new ExceptionDTO<>(HttpStatus.BAD_REQUEST.value(), "Oturumunuzun süresi dolmuştur.",
                 System.currentTimeMillis()), HttpStatus.BAD_REQUEST);
     }
 
